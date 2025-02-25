@@ -43,7 +43,7 @@ items_per_day_since_year_start: float = items_ingested_this_year / days_elapsed
 log.info(f'items_per_day_since_year_start: ``{items_per_day_since_year_start}``')
 
 ## predict completion date for remaining items ----------------------
-number_of_items_remaining_to_ingest: int = (TOTAL_TARGET_COUNT - START_OF_YEAR_COUNT) - items_count
+number_of_items_remaining_to_ingest: int = TOTAL_TARGET_COUNT - (START_OF_YEAR_COUNT + items_ingested_this_year)
 log.info(f'number_of_items_remaining_to_ingest: ``{number_of_items_remaining_to_ingest}``')
 days_to_target: int = number_of_items_remaining_to_ingest / items_per_day_since_year_start
 log.info(f'days to target: ``{days_to_target}``')
@@ -53,7 +53,22 @@ log.info(
 )
 
 ## prep json --------------------------------------------------------
-data: dict = {'items_count': items_count, 'orgs_count': orgs_count}
+data: dict = {
+    '_meta_': {
+        'data_prepared_date': str(datetime.datetime.now()),
+        'assumptions': {
+            'start_of_year_count': START_OF_YEAR_COUNT,
+            'total_items_count': TOTAL_TARGET_COUNT,
+        },
+        'days_elapsed_since_2025-Jan-06': days_elapsed,
+        'items_ingested_this_year': items_ingested_this_year,
+        'items_per_day_since_year_start': items_per_day_since_year_start,
+        'number_of_items_remaining_to_ingest': number_of_items_remaining_to_ingest,
+    },
+    'items_count': items_count,
+    'orgs_count': orgs_count,
+    'expected_completion_date': target_date.strftime('%Y-%m-%d'),
+}
 json_data: str = json.dumps(data, indent=2, sort_keys=True)
 
 ## save and output --------------------------------------------------
