@@ -53,28 +53,25 @@ log.info(
 )
 
 ## prep json --------------------------------------------------------
+int_items_per_day_since_year_start: int = int(items_per_day_since_year_start)  # to make the dispaly more readable
+int_days_to_target: int = int(days_to_target)  # to make the dispaly more readable
 data: dict = {
     '_meta_': {
         'data_prepared_date': str(datetime.datetime.now()),
-        'assumptions': {
-            'start_of_year_count': START_OF_YEAR_COUNT,
-            'total_items_count': TOTAL_TARGET_COUNT,
-        },
-        'days_elapsed_since_2025-Jan-06': days_elapsed,
-        'items_ingested_this_year': items_ingested_this_year,
-        'items_per_day_since_year_start': items_per_day_since_year_start,
-        'number_of_items_remaining_to_ingest': number_of_items_remaining_to_ingest,
+        'calculation_innards': f'Assuming {TOTAL_TARGET_COUNT:,} total items, and {items_count:,} ingested so far, we have {number_of_items_remaining_to_ingest:,} left to go. Our 2025 rate of ingestion is about {int_items_per_day_since_year_start:,}/day ({items_ingested_this_year:,}-items/{days_elapsed}-days) -- so we have {int_days_to_target} days to go.',
     },
-    'items_count': items_count,
-    'orgs_count': orgs_count,
-    'expected_completion_date': target_date.strftime('%Y-%m-%d'),
+    'ingested_items_count': items_count,
+    'ingested_orgs_count': orgs_count,
+    'tentative_expected_completion_date': target_date.strftime('%Y-%m-%d'),
 }
 json_data: str = json.dumps(data, indent=2, sort_keys=True)
+log.info(f'json_data: ``{json_data}``')
 
 ## save and output --------------------------------------------------
 if HH_COUNT_JSON_PATH:
     with open(HH_COUNT_JSON_PATH, 'w') as f:
         f.write(json_data)
-log.info(f'json_data: ``{json_data}``')
+
+log.info('done')
 
 ## eof
